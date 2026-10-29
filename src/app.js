@@ -1,0 +1,17 @@
+const express = require('express');
+const cors = require('cors');
+const authRoutes = require('./routes/authRoutes');
+const eventRoutes = require('./routes/eventRoutes');
+const { authenticate } = require('./middleware/auth');
+const { notFound, errorHandler } = require('./middleware/errors');
+const app = express();
+app.use(cors({ origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',').map(s => s.trim()) : true }));
+app.use(express.json({ limit: '1mb' }));
+app.use((req, res, next) => { console.log(`${new Date().toISOString()} ${req.method} ${req.originalUrl}`); next(); });
+app.get('/health', (req, res) => res.json({ success: true, status: 'ok', service: 'virtual-event-platform-api', timestamp: new Date().toISOString() }));
+app.use('/', authRoutes);
+app.use('/events', eventRoutes);
+app.get('/me', authenticate, (req, res) => { const { passwordHash, ...user } = req.user; res.json({ success: true, user }); });
+app.use(notFound);
+app.use(errorHandler);
+module.exports = app;

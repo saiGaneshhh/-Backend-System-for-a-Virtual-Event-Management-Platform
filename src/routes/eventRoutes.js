@@ -1,0 +1,12 @@
+const router = require('express').Router();
+const { authenticate, organizerOnly } = require('../middleware/auth');
+const c = require('../controllers/eventController');
+router.get('/', c.listEvents);
+router.get('/my/registrations', authenticate, c.myRegistrations);
+router.get('/:id', c.getEvent);
+router.post('/', authenticate, organizerOnly, c.createEvent);
+router.put('/:id', authenticate, organizerOnly, c.updateEvent);
+router.delete('/:id', authenticate, organizerOnly, c.deleteEvent);
+router.post('/:id/register', authenticate, c.registerForEvent);
+router.delete('/:id/register', authenticate, c.cancelRegistration);
+module.exports = router;
